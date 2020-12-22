@@ -45,6 +45,7 @@
 #undef DELETE
 #endif
 
+#include "input_injector.h"
 
 // FIXME: sdl does not properly report the window for certain OS.
 #define GET_FOCUS_WINDOW(ev) focus_window()
@@ -368,15 +369,49 @@ protected:
 //  sdl_keyboard_device
 //============================================================
 
+SDL_Event create_event(type, keycode, state) {
+	SDL_Event sdlevent;
+	sdlevent.type = type;
+	sdlevent.key.type type;
+	sdlevent.key.keysym.scancode = (SDL_Scancode) keycode;
+	sdlevent.key.keysym.sym = SDL_SCANCODE_TO_KEYCODE(sdlevent.key.keysym.scancode);
+	sdlevent.key.timestamp = (int) std::time(0);
+	sdlevent.key.repeat = 0;
+	return sdlevent;
+}
+
+void* global_keyboard = NULL;
+
 class sdl_keyboard_device : public sdl_device
 {
 public:
 	keyboard_state keyboard;
 
+	static void global_keyup_def(int keycode) {
+		std::cout << "global_keyup_def\n";
+
+		SDL_Event sdlevent = create_event(SDL_KEYUP, keycode, SDL_RELEASED);
+
+		sdl_keyboard_device* kbp = (sdl_keyboard_device*) global_keyboard;
+		kbp->process_event(sdlevent);
+	}
+
+	static void global_keydown_def(int keycode) {
+		std::cout << "global_keydown_def\n";
+
+		SDL_Event sdlevent = create_event(SDL_KEYUP, keycode, SDL_PRESSED);
+
+		sdl_keyboard_device* kbp = (sdl_keyboard_device*) global_keyboard;
+		kbp->process_event(sdlevent);
+	}
+
 	sdl_keyboard_device(running_machine &machine, const char *name, const char *id, input_module &module)
 		: sdl_device(machine, name, id, DEVICE_CLASS_KEYBOARD, module),
 		keyboard({{0}})
 	{
+		global_keyboard = this;
+		global_keydown = global_keydown_def;
+		global_keyup = global_keyup_def;
 	}
 
 	void process_event(SDL_Event &sdlevent) override

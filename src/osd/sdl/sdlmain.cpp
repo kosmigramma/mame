@@ -46,6 +46,7 @@
 #include "osdsdl.h"
 #include "modules/lib/osdlib.h"
 #include "modules/diagnostics/diagnostics_module.h"
+#include "../modules/input/input_injector.h"
 
 //============================================================
 //  OPTIONS
@@ -183,6 +184,19 @@ sdl_options::sdl_options()
 /* gee */
 extern "C" DECLSPEC void SDLCALL SDL_SetModuleHandle(void *hInst);
 #endif
+
+extern "C" void press(int) __attribute__((used));
+extern "C" void depress(int) __attribute__((used));
+
+void press(int btn){
+	std::cout << "PRESS\n";
+	(*global_keydown)(btn);
+}
+
+void depress(int btn){
+	std::cout << "DEPRESS\n";
+	(*global_keyup)(btn);
+}
 
 int main(int argc, char** argv)
 {
