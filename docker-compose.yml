@@ -1,0 +1,4 @@
+mame:
+  build: .
+  volumes:
+    - .:/app
