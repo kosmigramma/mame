@@ -190,12 +190,12 @@ extern "C" void depress(int) __attribute__((used));
 
 void press(int btn){
 	std::cout << "PRESS\n";
-	(*global_keydown)(btn);
+	(*global_funcs.global_keyhandler)(btn, true);
 }
 
 void depress(int btn){
 	std::cout << "DEPRESS\n";
-	(*global_keyup)(btn);
+	(*global_funcs.global_keyhandler)(btn, false);
 }
 
 int main(int argc, char** argv)
